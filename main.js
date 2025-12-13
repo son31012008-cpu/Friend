@@ -586,3 +586,73 @@ const backend = new A5K60Backend();
 // Export for use in other files
 window.A5K60Backend = A5K60Backend;
 window.backend = backend;
+// ===== FIREBASE SYNC INTEGRATION =====
+
+// Kiểm tra Firebase đã tồn tại chưa
+if (typeof firebase !== 'undefined' && firebase.database) {
+    console.log('🔥 Firebase Backend đã sẵn sàng cho đồng bộ');
+    
+    // Lưu trữ backup localStorage vào Firebase (chỉ chạy 1 lần đầu)
+    class FirebaseSync {
+        constructor() {
+            this.db = firebase.database();
+            this.syncLocalToFirebase();
+        }
+        
+        // Đồng bộ dữ liệu cũ từ localStorage lên Firebase (chỉ 1 lần)
+        async syncLocalToFirebase() {
+            const hasSynced = localStorage.getItem('firebase_synced_v2');
+            if (hasSynced) return; // Đã đồng bộ rồi
+            
+            console.log('🔄 Đang đồng bộ dữ liệu localStorage cũ lên Firebase...');
+            
+            const updates = {};
+            let syncCount = 0;
+            
+            for (let i = 1; i <= 46; i++) {
+                const memberId = i.toString().padStart(2, '0');
+                const localData = localStorage.getItem(`member_${memberId}`);
+                
+                if (localData) {
+                    const data = JSON.parse(localData);
+                    // Chỉ đồng bộ nếu chưa tồn tại trên Firebase
+                    const snapshot = await this.db.ref(`members/${memberId}`).once('value');
+                    if (!snapshot.exists()) {
+                        updates[`members/${memberId}`] = data;
+                        syncCount++;
+                    }
+                }
+            }
+            
+            if (syncCount > 0) {
+                await this.db.ref().update(updates);
+                localStorage.setItem('firebase_synced_v2', 'true');
+                console.log(`✅ Đã đồng bộ ${syncCount} thành viên lên Firebase`);
+            } else {
+                console.log('ℹ️ Không có dữ liệu mới cần đồng bộ');
+                localStorage.setItem('firebase_synced_v2', 'true');
+            }
+        }
+        
+        // Hàm xóa dữ liệu Firebase (dùng khi cần reset)
+        async clearFirebaseData() {
+            if (confirm('⚠️ Bạn có chắc muốn xóa TẤT CẢ dữ liệu trên Firebase?')) {
+                await this.db.ref('members').remove();
+                localStorage.removeItem('firebase_synced_v2');
+                alert('Đã xóa Firebase, localStorage giữ nguyên');
+                location.reload();
+            }
+        }
+    }
+    
+    // Khởi tạo
+    window.firebaseSync = new FirebaseSync();
+    
+    // Thêm vào window để truy cập từ console nếu cần
+    window.clearFirebase = () => firebaseSync.clearFirebaseData();
+    
+} else {
+    console.warn('⚠️ Firebase chưa được tải, dùng localStorage fallback');
+}
+
+console.log('🚀 A5K60 Backend với Firebase Sync đã sẵn sàng!');
