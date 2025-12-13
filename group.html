@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Những con khỉ A5K60 - Nhóm</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', 'Poppins', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #FAF7F0 0%, #F0EDE6 100%);
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .group-header {
+            background: linear-gradient(135deg, rgba(225, 112, 85, 0.1) 0%, rgba(116, 185, 255, 0.1) 100%);
+            border-radius: 2rem;
+        }
+        
+        .content-section {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .content-section:hover {
+            background: rgba(255, 255, 255, 0.95);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .member-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #E17055 0%, #D63031 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .upload-btn {
+            background: linear-gradient(135deg, #E17055 0%, #D63031 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(225, 112, 85, 0.3);
+        }
+        
+        .back-btn {
+            background: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+            border: 1px solid rgba(52, 152, 219, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: #3498db;
+            color: white;
+        }
+        
+        .logout-btn {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .media-item {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 1rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .media-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .member-row {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .member-row:hover {
+            background: rgba(255, 255, 255, 0.95);
+            transform: translateX(4px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar fixed top-0 left-0 right-0 z-50 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <button id="backBtn" class="back-btn px-3 py-2 rounded-lg text-sm font-medium">
+                    ← Quay lại
+                </button>
+                <div class="text-2xl">🐒</div>
+                <h1 class="text-xl font-bold text-gray-800">A5K60</h1>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <div class="hidden md:block">
+                    <span class="text-sm text-gray-600">Nhóm</span>
+                </div>
+                <button id="logoutBtn" class="logout-btn px-4 py-2 rounded-lg text-sm font-medium">
+                    Đăng xuất
+                </button>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="pt-20 px-4 pb-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Group Header -->
+            <section class="group-header p-8 mb-8 text-center">
+                <div class="relative z-10">
+                    <div id="groupAvatar" class="w-24 h-24 bg-gradient-to-r from-orange-400 to-red-500 rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-4">
+                        👥
+                    </div>
+                    <h2 id="groupName" class="text-3xl font-bold text-gray-800 mb-2">
+                        Tên nhóm
+                    </h2>
+                    <p id="groupDescription" class="text-lg text-gray-600 mb-4">
+                        Mô tả nhóm
+                    </p>
+                    <div class="flex justify-center items-center space-x-8 text-sm text-gray-500">
+                        <div class="text-center">
+                            <div id="memberCount" class="text-2xl font-bold text-orange-500">0</div>
+                            <div>Thành viên</div>
+                        </div>
+                        <div class="text-center">
+                            <div id="mediaCount" class="text-2xl font-bold text-blue-500">0</div>
+                            <div>Ảnh/video</div>
+                        </div>
+                        <div class="text-center">
+                            <div id="createdDate" class="text-2xl font-bold text-green-500">2024</div>
+                            <div>Ngày tạo</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Content Sections -->
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Group Media Gallery -->
+                <section class="content-section p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-bold text-gray-800">📸 Ảnh/video nhóm</h3>
+                        <button id="uploadGroupBtn" class="upload-btn px-4 py-2 text-white rounded-lg text-sm font-medium">
+                            + Upload
+                        </button>
+                    </div>
+                    
+                    <div id="groupMediaGallery" class="splide">
+                        <div class="splide__track">
+                            <ul id="groupMediaSlides" class="splide__list">
+                                <!-- Media items will be populated by JavaScript -->
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div id="noGroupMedia" class="text-center py-8 hidden">
+                        <div class="text-4xl mb-2">📷</div>
+                        <p class="text-gray-500">Chưa có ảnh/video nào</p>
+                        <p class="text-sm text-gray-400">Hãy upload ảnh/video đầu tiên của nhóm!</p>
+                    </div>
+                </section>
+                
+                <!-- Group Members -->
+                <section class="content-section p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">👥 Thành viên</h3>
+                    <div id="groupMembersList" class="space-y-4">
+                        <!-- Members will be populated by JavaScript -->
+                    </div>
+                </section>
+            </section>
+            
+            <!-- Group Info -->
+            <section class="content-section p-6 mt-8">
+                <h3 class="text-xl font-bold text-gray-800 mb-6">ℹ️ Thông tin nhóm</h3>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-3">Ngưởi tạo</h4>
+                        <div id="creatorInfo" class="flex items-center space-x-3">
+                            <div class="member-avatar">👤</div>
+                            <span class="text-gray-600">Đang tải...</span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-3">Ngày tạo</h4>
+                        <p id="creationDate" class="text-gray-600">
+                            Đang tải...
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="mt-6 p-4 bg-gray-50 rounded-xl">
+                    <h4 class="font-semibold text-gray-700 mb-2">Mô tả chi tiết</h4>
+                    <p id="fullDescription" class="text-gray-600 leading-relaxed">
+                        Đang tải...
+                    </p>
+                </div>
+            </section>
+        </div>
+    </main>
+    
+    <!-- Upload Group Media Modal -->
+    <div id="uploadGroupModal" class="modal fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div class="modal-content rounded-2xl p-8 w-full max-w-md">
+            <div class="text-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">Upload cho nhóm</h3>
+                <p class="text-gray-600">Chọn file để upload cho nhóm</p>
+            </div>
+            
+            <form id="uploadGroupForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Chọn file</label>
+                    <input 
+                        type="file" 
+                        id="groupFileInput" 
+                        accept="image/*,video/*"
+                        class="form-input w-full px-4 py-3 rounded-xl focus:outline-none"
+                        multiple
+                    >
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Mô tả</label>
+                    <textarea 
+                        id="groupFileDescription" 
+                        placeholder="Mô tả về file này..."
+                        class="form-input w-full px-4 py-3 rounded-xl focus:outline-none resize-none"
+                        rows="3"
+                    ></textarea>
+                </div>
+                
+                <div class="flex space-x-3">
+                    <button 
+                        type="button" 
+                        id="cancelUploadGroup" 
+                        class="flex-1 px-4 py-3 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition-all"
+                    >
+                        Hủy
+                    </button>
+                    <button 
+                        type="submit" 
+                        class="flex-1 upload-btn px-4 py-3 text-white rounded-xl font-medium"
+                    >
+                        Upload
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+    <script>
+        let currentGroup = null;
+        let currentUser = null;
+        
+        // Check authentication
+        function checkAuth() {
+            const user = localStorage.getItem('currentUser');
+            if (!user) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            return JSON.parse(user);
+        }
+        
+        // Load group data
+        function loadGroupData() {
+            currentUser = checkAuth();
+            if (!currentUser) return;
+            
+            const selectedGroup = localStorage.getItem('selectedGroup');
+            if (!selectedGroup) {
+                alert('Vui lòng chọn nhóm từ trang cá nhân');
+                window.location.href = 'profile.html';
+                return;
+            }
+            
+            currentGroup = getGroupById(selectedGroup);
+            if (!currentGroup) {
+                alert('Nhóm không tồn tại!');
+                window.location.href = 'profile.html';
+                return;
+            }
+            
+            // Check if user is member of this group
+            if (!currentGroup.members.includes(currentUser.memberId)) {
+                alert('Bạn không phải thành viên của nhóm này!');
+                window.location.href = 'profile.html';
+                return;
+            }
+            
+            renderGroup();
+        }
+        
+        // Render group data
+        function renderGroup() {
+            document.getElementById('groupName').textContent = currentGroup.name;
+            document.getElementById('groupDescription').textContent = currentGroup.description || 'Không có mô tả';
+            document.getElementById('memberCount').textContent = currentGroup.members.length;
+            document.getElementById('mediaCount').textContent = currentGroup.media ? currentGroup.media.length : 0;
+            document.getElementById('createdDate').textContent = new Date(currentGroup.createdAt).getFullYear();
+            document.getElementById('creationDate').textContent = new Date(currentGroup.createdAt).toLocaleDateString('vi-VN');
+            document.getElementById('fullDescription').textContent = currentGroup.description || 'Không có mô tả chi tiết';
+            
+            // Render creator info
+            const creatorData = backend.getMemberData(currentGroup.creatorId);
+            const creatorInfo = document.getElementById('creatorInfo');
+            creatorInfo.innerHTML = `
+                <div class="member-avatar">${creatorData.avatar}</div>
+                <span class="text-gray-600">${creatorData.name}</span>
+            `;
+            
+            // Render members
+            renderGroupMembers();
+            
+            // Render media
+            renderGroupMedia();
+        }
+        
+        // Render group members
+        function renderGroupMembers() {
+            const membersList = document.getElementById('groupMembersList');
+            membersList.innerHTML = currentGroup.members.map(memberId => {
+                const memberData = backend.getMemberData(memberId);
+                return `
+                    <div class="member-row p-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="member-avatar">${memberData.avatar}</div>
+                            <div>
+                                <div class="font-medium text-gray-800">${memberData.name}</div>
+                                <div class="text-sm text-gray-500">Thành viên #${memberId}</div>
+                            </div>
+                            ${memberId === currentGroup.creatorId ? '<div class="ml-auto text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-full">Nhóm trưởng</div>' : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Render group media
+        function renderGroupMedia() {
+            const mediaSlides = document.getElementById('groupMediaSlides');
+            const noMedia = document.getElementById('noGroupMedia');
+            
+            if (!currentGroup.media || currentGroup.media.length === 0) {
+                document.getElementById('groupMediaGallery').style.display = 'none';
+                noMedia.classList.remove('hidden');
+                return;
+            }
+            
+            document.getElementById('groupMediaGallery').style.display = 'block';
+            noMedia.classList.add('hidden');
+            
+            mediaSlides.innerHTML = currentGroup.media.map(item => `
+                <li class="splide__slide">
+                    <div class="media-item">
+                        ${item.type === 'image' ? 
+                            `<img src="${item.url}" alt="Group media" class="w-full h-48 object-cover">` :
+                            `<video src="${item.url}" controls class="w-full h-48 object-cover"></video>`
+                        }
+                        <div class="p-4">
+                            <p class="text-sm text-gray-600">${item.description || 'Ảnh/video nhóm'}</p>
+                            <p class="text-xs text-gray-400 mt-1">
+                                Upload bởi: Thành viên ${item.uploaderId}
+                            </p>
+                        </div>
+                    </div>
+                </li>
+            `).join('');
+            
+            // Initialize Splide
+            if (window.groupSplide) {
+                window.groupSplide.destroy();
+            }
+            
+            window.groupSplide = new Splide('#groupMediaGallery', {
+                type: 'loop',
+                perPage: 1,
+                autoplay: true,
+                interval: 3000,
+                arrows: currentGroup.media.length > 1,
+                pagination: currentGroup.media.length > 1
+            });
+            
+            window.groupSplide.mount();
+        }
+        
+        // Handle group media upload
+        function handleGroupMediaUpload(event) {
+            event.preventDefault();
+            
+            const files = document.getElementById('groupFileInput').files;
+            const description = document.getElementById('groupFileDescription').value;
+            
+            if (files.length === 0) {
+                alert('Vui lòng chọn file để upload!');
+                return;
+            }
+            
+            // Simulate upload
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const newMedia = {
+                        id: backend.generateId(),
+                        url: e.target.result,
+                        type: file.type.startsWith('image/') ? 'image' : 'video',
+                        uploaderId: currentUser.memberId,
+                        description: description || file.name
+                    };
+                    
+                    // Add to group
+                    if (!currentGroup.media) currentGroup.media = [];
+                    currentGroup.media.push(newMedia);
+                    
+                    // Update in storage
+                    const groups = JSON.parse(localStorage.getItem('a5k60_groups') || '[]');
+                    const groupIndex = groups.findIndex(g => g.id === currentGroup.id);
+                    if (groupIndex !== -1) {
+                        groups[groupIndex] = currentGroup;
+                        localStorage.setItem('a5k60_groups', JSON.stringify(groups));
+                    }
+                    
+                    renderGroupMedia();
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            hideModal('uploadGroupModal');
+            document.getElementById('uploadGroupForm').reset();
+            
+            A5K60Backend.showNotification('Upload thành công!', 'success');
+        }
+        
+        // Modal functions
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+            anime({
+                targets: `#${modalId} .modal-content`,
+                scale: [0.8, 1],
+                opacity: [0, 1],
+                duration: 300,
+                easing: 'easeOutQuad'
+            });
+        }
+        
+        function hideModal(modalId) {
+            anime({
+                targets: `#${modalId} .modal-content`,
+                scale: [1, 0.8],
+                opacity: [1, 0],
+                duration: 200,
+                easing: 'easeInQuad',
+                complete: function() {
+                    document.getElementById(modalId).classList.add('hidden');
+                }
+            });
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadGroupData();
+            
+            // Event listeners
+            document.getElementById('uploadGroupBtn').addEventListener('click', () => showModal('uploadGroupModal'));
+            document.getElementById('cancelUploadGroup').addEventListener('click', () => hideModal('uploadGroupModal'));
+            document.getElementById('uploadGroupForm').addEventListener('submit', handleGroupMediaUpload);
+            
+            document.getElementById('backBtn').addEventListener('click', () => {
+                window.location.href = 'profile.html';
+            });
+            
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'login.html';
+            });
+            
+            // Initialize animations
+            anime({
+                targets: '.content-section',
+                translateY: [50, 0],
+                opacity: [0, 1],
+                duration: 800,
+                delay: anime.stagger(200),
+                easing: 'easeOutQuad'
+            });
+        });
+    </script>
+</body>
+</html>

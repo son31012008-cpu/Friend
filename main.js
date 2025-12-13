@@ -240,6 +240,7 @@ class A5K60Backend {
             id: memberId,
             name: this.users[memberId]?.name || `Thành viên ${memberId}`,
             avatar: this.users[memberId]?.avatar || '🐵',
+            avatarUrl: null,
             bio: `Thành viên số ${memberId} của nhóm A5K60`,
             joinDate: `2024-${Math.floor(Math.random() * 12 + 1).toString().padStart(2, '0')}-${Math.floor(Math.random() * 28 + 1).toString().padStart(2, '0')}`,
             personalInfo: 'Thành viên tuyệt vờ của nhóm A5K60. Luôn mang đến năng lượng tích cực và niềm vui cho mọi ngườ xung quanh.',
@@ -250,7 +251,8 @@ class A5K60Backend {
                 instagram: '',
                 locket: ''
             },
-            media: []
+            media: [],
+            groups: []
         };
     }
     
@@ -324,6 +326,31 @@ class A5K60Backend {
             
             return { success: false, message: 'Không tìm thấy thành viên!' };
         };
+        
+        // Get all member data (for admin)
+        window.getAllMemberData = () => {
+            if (!this.currentUser || this.currentUser.role !== 'admin') {
+                return { success: false, message: 'Bạn không có quyền truy cập!' };
+            }
+            
+            const allData = {};
+            for (let i = 1; i <= 46; i++) {
+                const memberId = i.toString().padStart(2, '0');
+                allData[memberId] = this.getMemberData(memberId);
+            }
+            
+            return { success: true, data: allData };
+        };
+        
+        // Get member media (for admin)
+        window.getMemberMedia = (memberId) => {
+            if (!this.currentUser || this.currentUser.role !== 'admin') {
+                return { success: false, message: 'Bạn không có quyền truy cập!' };
+            }
+            
+            const memberData = this.getMemberData(memberId);
+            return { success: true, media: memberData.media || [] };
+        };
     }
     
     // Get recent activity (mock)
@@ -337,6 +364,152 @@ class A5K60Backend {
         ];
         
         return activities.slice(0, Math.floor(Math.random() * 3) + 3);
+    }
+    
+    // Avatar management
+    setupAvatarManagement() {
+        window.uploadAvatar = (memberId, file, callback) => {
+            if (!this.hasPermission(memberId)) {
+                callback({ success: false, message: 'Bạn không có quyền cập nhật!' });
+                return;
+            }
+            
+            this.cloudStorage.upload(file, (result) => {
+                if (result.success) {
+                    const memberData = this.getMemberData(memberId);
+                    memberData.avatarUrl = result.url;
+                    this.saveMemberData(memberId, memberData);
+                }
+                callback(result);
+            });
+        };
+        
+        window.getAvatar = (memberId) => {
+            const memberData = this.getMemberData(memberId);
+            return memberData.avatarUrl || null;
+        };
+    }
+    
+    // Group management
+    setupGroupManagement() {
+        window.createGroup = (groupData, callback) => {
+            const { name, description, members, creatorId } = groupData;
+            
+            if (!this.hasPermission(creatorId)) {
+                callback({ success: false, message: 'Bạn không có quyền tạo nhóm!' });
+                return;
+            }
+            
+            const groupId = this.generateId();
+            const group = {
+                id: groupId,
+                name,
+                description,
+                members: [creatorId, ...members],
+                creatorId,
+                createdAt: new Date().toISOString(),
+                media: []
+            };
+            
+            // Save group
+            const groups = JSON.parse(localStorage.getItem('a5k60_groups') || '[]');
+            groups.push(group);
+            localStorage.setItem('a5k60_groups', JSON.stringify(groups));
+            
+            // Add group to member data
+            members.forEach(memberId => {
+                const memberData = this.getMemberData(memberId);
+                if (!memberData.groups) memberData.groups = [];
+                memberData.groups.push({
+                    id: groupId,
+                    name,
+                    joinedAt: new Date().toISOString()
+                });
+                this.saveMemberData(memberId, memberData);
+            });
+            
+            callback({ success: true, group });
+        };
+        
+        window.getMemberGroups = (memberId) => {
+            const memberData = this.getMemberData(memberId);
+            return memberData.groups || [];
+        };
+        
+        window.getGroupById = (groupId) => {
+            const groups = JSON.parse(localStorage.getItem('a5k60_groups') || '[]');
+            return groups.find(g => g.id === groupId);
+        };
+        
+        window.uploadGroupMedia = (groupId, file, uploaderId, callback) => {
+            if (!this.hasPermission(uploaderId)) {
+                callback({ success: false, message: 'Bạn không có quyền upload!' });
+                return;
+            }
+            
+            this.cloudStorage.upload(file, (result) => {
+                if (result.success) {
+                    const groups = JSON.parse(localStorage.getItem('a5k60_groups') || '[]');
+                    const groupIndex = groups.findIndex(g => g.id === groupId);
+                    
+                    if (groupIndex !== -1) {
+                        if (!groups[groupIndex].media) groups[groupIndex].media = [];
+                        groups[groupIndex].media.push({
+                            id: this.generateId(),
+                            url: result.url,
+                            type: file.type.startsWith('image/') ? 'image' : 'video',
+                            uploaderId,
+                            uploadedAt: new Date().toISOString()
+                        });
+                        
+                        localStorage.setItem('a5k60_groups', JSON.stringify(groups));
+                    }
+                }
+                callback(result);
+            });
+        };
+    }
+    
+    // Centralized storage for admin access
+    setupCentralizedStorage() {
+        // Store all media in a central location for admin access
+        window.storeMediaCentrally = (memberId, mediaItem) => {
+            const centralMedia = JSON.parse(localStorage.getItem('a5k60_central_media') || '[]');
+            centralMedia.push({
+                ...mediaItem,
+                memberId,
+                storedAt: new Date().toISOString()
+            });
+            localStorage.setItem('a5k60_central_media', JSON.stringify(centralMedia));
+        };
+        
+        window.getCentralMedia = () => {
+            if (!this.currentUser || this.currentUser.role !== 'admin') {
+                return { success: false, message: 'Bạn không có quyền truy cập!' };
+            }
+            
+            const centralMedia = JSON.parse(localStorage.getItem('a5k60_central_media') || '[]');
+            return { success: true, media: centralMedia };
+        };
+        
+        // Override upload to store centrally
+        const originalUpload = this.cloudStorage.upload;
+        this.cloudStorage.upload = (file, callback) => {
+            originalUpload.call(this.cloudStorage, file, (result) => {
+                if (result.success && this.currentUser) {
+                    // Store in central storage
+                    const mediaItem = {
+                        id: this.generateId(),
+                        url: result.url,
+                        type: file.type.startsWith('image/') ? 'image' : 'video',
+                        name: file.name,
+                        size: file.size
+                    };
+                    storeMediaCentrally(this.currentUser.memberId, mediaItem);
+                }
+                callback(result);
+            });
+        };
     }
     
     // Facebook API integration (mock)

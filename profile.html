@@ -261,10 +261,58 @@
             
             <!-- Content Sections -->
             <div class="grid md:grid-cols-2 gap-8">
-                <!-- Media Gallery -->
+                <!-- Avatar & Profile Info Edit -->
                 <section class="content-section p-6">
                     <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-xl font-bold text-gray-800">📸 Thư viện ảnh</h3>
+                        <h3 class="text-xl font-bold text-gray-800">🎭 Thông tin cá nhân</h3>
+                        <button id="editProfileBtn" class="edit-btn px-4 py-2 rounded-lg text-sm font-medium">
+                            Chỉnh sửa
+                        </button>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="text-center">
+                            <div id="currentAvatar" class="w-24 h-24 bg-gradient-to-r from-orange-400 to-red-500 rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-4">
+                                🐵
+                            </div>
+                            <button id="changeAvatarBtn" class="upload-btn px-4 py-2 text-white rounded-lg text-sm font-medium mb-4">
+                                Đổi avatar
+                            </button>
+                            <input type="file" id="avatarInput" accept="image/*" class="hidden">
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tên hiển thị</label>
+                                <input type="text" id="displayName" class="form-input w-full px-4 py-3 rounded-xl focus:outline-none" readonly>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Ngày tham gia</label>
+                                <input type="date" id="joinDateInput" class="form-input w-full px-4 py-3 rounded-xl focus:outline-none" readonly>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Bio</label>
+                                <textarea id="bioInput" class="form-input w-full px-4 py-3 rounded-xl focus:outline-none resize-none" rows="3" readonly></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="profileActions" class="flex justify-end space-x-3 mt-6 hidden">
+                        <button id="cancelEditBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-all">
+                            Hủy
+                        </button>
+                        <button id="saveProfileBtn" class="upload-btn px-4 py-2 text-white rounded-lg font-medium">
+                            Lưu
+                        </button>
+                    </div>
+                </section>
+                
+                <!-- Personal Media Gallery -->
+                <section class="content-section p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-bold text-gray-800">📸 Thư viện cá nhân</h3>
                         <button id="uploadBtn" class="upload-btn px-4 py-2 text-white rounded-lg text-sm font-medium">
                             + Upload
                         </button>
@@ -285,16 +333,22 @@
                     </div>
                 </section>
                 
-                <!-- Social Links -->
+                <!-- Social Links & Groups -->
                 <section class="content-section p-6">
                     <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-xl font-bold text-gray-800">🔗 Liên kết</h3>
-                        <button id="editLinksBtn" class="edit-btn px-3 py-2 rounded-lg text-sm font-medium">
-                            Sửa
-                        </button>
+                        <h3 class="text-xl font-bold text-gray-800">🔗 Liên kết & Nhóm</h3>
+                        <div class="flex space-x-2">
+                            <button id="editLinksBtn" class="edit-btn px-3 py-2 rounded-lg text-sm font-medium">
+                                Sửa links
+                            </button>
+                            <button id="createGroupBtn" class="upload-btn px-3 py-2 text-white rounded-lg text-sm font-medium">
+                                + Tạo nhóm
+                            </button>
+                        </div>
                     </div>
                     
-                    <div class="space-y-4">
+                    <!-- Social Links -->
+                    <div class="space-y-4 mb-6">
                         <div class="social-link p-4 rounded-xl">
                             <div class="flex items-center space-x-3">
                                 <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center text-white font-bold">
@@ -337,6 +391,17 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Groups Section -->
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-4">👥 Nhóm của tôi</h4>
+                        <div id="groupsList" class="space-y-3">
+                            <!-- Groups will be populated by JavaScript -->
+                        </div>
+                        <div id="noGroups" class="text-center py-4 text-gray-500">
+                            Chưa tham gia nhóm nào
+                        </div>
+                    </div>
                 </section>
             </div>
             
@@ -371,6 +436,80 @@
             </section>
         </div>
     </main>
+    
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div class="modal-content rounded-2xl p-8 w-full max-w-md">
+            <div class="text-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">Chỉnh sửa thông tin</h3>
+                <p class="text-gray-600">Cập nhật thông tin cá nhân của bạn</p>
+            </div>
+            
+            <form id="editProfileForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tên hiển thị</label>
+                    <input type="text" id="editDisplayName" class="form-input w-full px-4 py-3 rounded-xl focus:outline-none" required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Ngày tham gia</label>
+                    <input type="date" id="editJoinDate" class="form-input w-full px-4 py-3 rounded-xl focus:outline-none" required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Bio</label>
+                    <textarea id="editBio" class="form-input w-full px-4 py-3 rounded-xl focus:outline-none resize-none" rows="3"></textarea>
+                </div>
+                
+                <div class="flex space-x-3">
+                    <button type="button" id="cancelEditProfile" class="flex-1 px-4 py-3 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition-all">
+                        Hủy
+                    </button>
+                    <button type="submit" class="flex-1 upload-btn px-4 py-3 text-white rounded-xl font-medium">
+                        Lưu
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Create Group Modal -->
+    <div id="createGroupModal" class="modal fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div class="modal-content rounded-2xl p-8 w-full max-w-md">
+            <div class="text-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">Tạo nhóm mới</h3>
+                <p class="text-gray-600">Tạo nhóm cho bạn và các thành viên khác</p>
+            </div>
+            
+            <form id="createGroupForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tên nhóm</label>
+                    <input type="text" id="groupName" class="form-input w-full px-4 py-3 rounded-xl focus:outline-none" placeholder="Nhập tên nhóm..." required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Mô tả</label>
+                    <textarea id="groupDescription" class="form-input w-full px-4 py-3 rounded-xl focus:outline-none resize-none" rows="3" placeholder="Mô tả về nhóm..."></textarea>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Thành viên (chọn từ danh sách)</label>
+                    <div id="memberSelection" class="max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-3">
+                        <!-- Member checkboxes will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="flex space-x-3">
+                    <button type="button" id="cancelCreateGroup" class="flex-1 px-4 py-3 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition-all">
+                        Hủy
+                    </button>
+                    <button type="submit" class="flex-1 upload-btn px-4 py-3 text-white rounded-xl font-medium">
+                        Tạo nhóm
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
     
     <!-- Upload Modal -->
     <div id="uploadModal" class="modal fixed inset-0 z-50 hidden flex items-center justify-center p-4">
@@ -712,31 +851,7 @@
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             loadMemberData();
-            
-            // Event listeners
-            document.getElementById('uploadBtn').addEventListener('click', () => showModal('uploadModal'));
-            document.getElementById('editLinksBtn').addEventListener('click', () => {
-                // Pre-fill form
-                document.getElementById('facebookInput').value = memberData.socialLinks.facebook || '';
-                document.getElementById('instagramInput').value = memberData.socialLinks.instagram || '';
-                document.getElementById('locketInput').value = memberData.socialLinks.locket || '';
-                showModal('editLinksModal');
-            });
-            
-            document.getElementById('cancelUpload').addEventListener('click', () => hideModal('uploadModal'));
-            document.getElementById('cancelEditLinks').addEventListener('click', () => hideModal('editLinksModal'));
-            
-            document.getElementById('uploadForm').addEventListener('submit', handleUpload);
-            document.getElementById('editLinksForm').addEventListener('submit', handleEditLinks);
-            
-            document.getElementById('backBtn').addEventListener('click', () => {
-                window.location.href = 'index.html';
-            });
-            
-            document.getElementById('logoutBtn').addEventListener('click', () => {
-                localStorage.removeItem('currentUser');
-                window.location.href = 'login.html';
-            });
+            setupEventListeners();
             
             // Initialize animations
             anime({
@@ -748,6 +863,185 @@
                 easing: 'easeOutQuad'
             });
         });
+        
+        // Setup all event listeners
+        function setupEventListeners() {
+            // Upload media
+            document.getElementById('uploadBtn').addEventListener('click', () => showModal('uploadModal'));
+            document.getElementById('cancelUpload').addEventListener('click', () => hideModal('uploadModal'));
+            document.getElementById('uploadForm').addEventListener('submit', handleUpload);
+            
+            // Edit social links
+            document.getElementById('editLinksBtn').addEventListener('click', () => {
+                document.getElementById('facebookInput').value = memberData.socialLinks.facebook || '';
+                document.getElementById('instagramInput').value = memberData.socialLinks.instagram || '';
+                document.getElementById('locketInput').value = memberData.socialLinks.locket || '';
+                showModal('editLinksModal');
+            });
+            document.getElementById('cancelEditLinks').addEventListener('click', () => hideModal('editLinksModal'));
+            document.getElementById('editLinksForm').addEventListener('submit', handleEditLinks);
+            
+            // Edit profile
+            document.getElementById('editProfileBtn').addEventListener('click', openEditProfileModal);
+            document.getElementById('cancelEditProfile').addEventListener('click', () => hideModal('editProfileModal'));
+            document.getElementById('editProfileForm').addEventListener('submit', handleEditProfile);
+            
+            // Avatar management
+            document.getElementById('changeAvatarBtn').addEventListener('click', () => {
+                document.getElementById('avatarInput').click();
+            });
+            document.getElementById('avatarInput').addEventListener('change', handleAvatarUpload);
+            
+            // Group management
+            document.getElementById('createGroupBtn').addEventListener('click', openCreateGroupModal);
+            document.getElementById('cancelCreateGroup').addEventListener('click', () => hideModal('createGroupModal'));
+            document.getElementById('createGroupForm').addEventListener('submit', handleCreateGroup);
+            
+            // Navigation
+            document.getElementById('backBtn').addEventListener('click', () => {
+                window.location.href = 'index.html';
+            });
+            
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'login.html';
+            });
+        }
+        
+        // Avatar management
+        function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const currentUser = checkAuth();
+            if (!currentUser) return;
+            
+            // Simulate upload
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                memberData.avatarUrl = e.target.result;
+                saveMemberData();
+                
+                // Update UI
+                document.getElementById('currentAvatar').innerHTML = `<img src="${e.target.result}" alt="Avatar" class="w-full h-full rounded-full object-cover">`;
+                
+                A5K60Backend.showNotification('Avatar đã được cập nhật!', 'success');
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Profile editing
+        function openEditProfileModal() {
+            document.getElementById('editDisplayName').value = memberData.name;
+            document.getElementById('editJoinDate').value = memberData.joinDate;
+            document.getElementById('editBio').value = memberData.bio;
+            showModal('editProfileModal');
+        }
+        
+        function handleEditProfile(event) {
+            event.preventDefault();
+            
+            memberData.name = document.getElementById('editDisplayName').value;
+            memberData.joinDate = document.getElementById('editJoinDate').value;
+            memberData.bio = document.getElementById('editBio').value;
+            
+            saveMemberData();
+            renderProfile();
+            hideModal('editProfileModal');
+            
+            A5K60Backend.showNotification('Thông tin đã được cập nhật!', 'success');
+        }
+        
+        // Group management
+        function openCreateGroupModal() {
+            // Populate member selection
+            const memberSelection = document.getElementById('memberSelection');
+            memberSelection.innerHTML = '';
+            
+            for (let i = 1; i <= 46; i++) {
+                const memberId = i.toString().padStart(2, '0');
+                if (memberId !== memberData.id) { // Don't include self
+                    const checkbox = document.createElement('div');
+                    checkbox.className = 'flex items-center space-x-2 mb-2';
+                    checkbox.innerHTML = `
+                        <input type="checkbox" id="member_${memberId}" value="${memberId}" class="rounded">
+                        <label for="member_${memberId}" class="text-sm">Thành viên ${memberId}</label>
+                    `;
+                    memberSelection.appendChild(checkbox);
+                }
+            }
+            
+            showModal('createGroupModal');
+        }
+        
+        function handleCreateGroup(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('groupName').value;
+            const description = document.getElementById('groupDescription').value;
+            const selectedMembers = [];
+            
+            // Get selected members
+            for (let i = 1; i <= 46; i++) {
+                const memberId = i.toString().padStart(2, '0');
+                const checkbox = document.getElementById(`member_${memberId}`);
+                if (checkbox && checkbox.checked) {
+                    selectedMembers.push(memberId);
+                }
+            }
+            
+            const currentUser = checkAuth();
+            
+            createGroup({
+                name,
+                description,
+                members: selectedMembers,
+                creatorId: currentUser.memberId
+            }, (result) => {
+                if (result.success) {
+                    A5K60Backend.showNotification('Nhóm đã được tạo thành công!', 'success');
+                    renderMemberGroups();
+                    hideModal('createGroupModal');
+                    document.getElementById('createGroupForm').reset();
+                } else {
+                    A5K60Backend.showNotification(result.message || 'Có lỗi xảy ra!', 'error');
+                }
+            });
+        }
+        
+        function renderMemberGroups() {
+            const groups = getMemberGroups(memberData.id);
+            const groupsList = document.getElementById('groupsList');
+            const noGroups = document.getElementById('noGroups');
+            
+            if (groups.length === 0) {
+                groupsList.innerHTML = '';
+                noGroups.classList.remove('hidden');
+                return;
+            }
+            
+            noGroups.classList.add('hidden');
+            groupsList.innerHTML = groups.map(group => {
+                const groupData = getGroupById(group.id);
+                return `
+                    <div class="social-link p-4 rounded-xl cursor-pointer" onclick="viewGroup('${group.id}')">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="font-medium text-gray-800">${group.name}</div>
+                                <div class="text-sm text-gray-500">${groupData?.members?.length || 0} thành viên</div>
+                            </div>
+                            <div class="text-2xl">👥</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function viewGroup(groupId) {
+            // Store group ID and navigate to group page
+            localStorage.setItem('selectedGroup', groupId);
+            window.location.href = 'group.html'; // We'll create this page next
+        }
     </script>
 </body>
 </html>
