@@ -26,16 +26,6 @@
         window.db = firebase.database();
         console.log('✅ Firebase kết nối thành công!');
     </script>
-    
-    <style>
-        .member-card {
-            transition: all 0.3s ease;
-        }
-        .member-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-        }
-    </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
     <!-- Header -->
@@ -68,43 +58,52 @@
     <!-- Search -->
     <section class="container mx-auto px-4 mb-6">
         <div class="max-w-md mx-auto">
-            <div class="relative">
-                <input type="text" id="search-input" placeholder="🔍 Tìm thành viên..." 
-                       class="w-full px-4 py-3 rounded-full border-2 border-blue-300 focus:border-blue-500 focus:outline-none shadow-sm">
-            </div>
+            <input type="text" id="search-input" placeholder="🔍 Tìm thành viên..." 
+                   class="w-full px-4 py-3 rounded-full border-2 border-blue-300 focus:border-blue-500 focus:outline-none shadow-sm">
         </div>
     </section>
 
     <!-- Members Grid -->
     <section class="container mx-auto px-4 pb-12">
         <div id="members-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            <!-- Danh sách thành viên sẽ được load tự động -->
+            <!-- Load tự động -->
         </div>
-        
         <div id="no-results" class="hidden text-center py-12 text-gray-500">
             <div class="text-4xl mb-4">🔍</div>
             <h3 class="text-xl font-semibold">Không tìm thấy thành viên</h3>
-            <p class="mt-2">Vui lòng thử lại với từ khóa khác</p>
         </div>
     </section>
 
-    <!-- Scripts -->
     <script src="main.js"></script>
     
     <script>
+        // Danh sách 46 thành viên A5K60
+        const memberNames = [
+            "Võ Đăng Hoàng Anh", "Võ Hoàng Anh", "Đinh Viết Dũng", "Lê Thị Thùy Dương", "Nguyễn Hàn Giang",
+            "Nguyễn Thị Diễm Hằng", "Nguyễn Thị Thúy Hằng", "Nguyễn Bảo Hoàng", "Nguyễn Văn Quốc Hội", "Huỳnh Gia Huy",
+            "Trần Huy Hoàng", "Hồ Công Hưng", "Nguyễn Anh Kha", "Lê Quang Khoa", "Nguyễn Anh Khôi",
+            "Mai Đăng Linh", "Nguyễn Hoài Phương Linh", "Nguyễn Thị Khánh Linh", "Nguyễn Thảo Ly", "Nguyễn Ngọc Huy Minh",
+            "Võ Khánh Minh", "Lê Thị Trà My", "Nguyễn Diễm My", "Võ Trần Thục Nghi", "Lê Hữu Nghĩa",
+            "Nguyễn Bích Ngọc", "Trần Thị Thanh Ngọc", "Nguyễn Đăng Nguyên", "Nguyễn Xuân Hoàng Nguyên", "Phạm Hoàng Thảo Nguyên",
+            "Lê Minh Nhật", "Nguyễn Thị Quỳnh Như", "Đặng Thành Phát", "Lê Ngọc Quang", "Trương Nhật Sơn",
+            "Nguyễn Thái Sơn", "Vũ Minh Sơn", "Nguyễn Quang Thanh", "Trần Hương Trà", "Nguyễn Ngọc Thảo Trang",
+            "Trần Ngọc Huyền Trân", "Lê Nguyễn Khánh Triều", "Lê Ngọc Thanh Trúc", "Lê Võ Anh Tuấn", "Lê Thanh Tuyến",
+            "Nguyễn Hà Vy"
+        ];
+
         // Hàm tạo thẻ thành viên
         function createMemberCard(memberId, data) {
             const card = document.createElement('div');
-            card.className = 'member-card bg-white rounded-lg p-4 shadow-lg cursor-pointer';
+            card.className = 'member-card bg-white rounded-lg p-4 shadow-lg cursor-pointer hover:shadow-xl transition-all hover:scale-105';
             card.setAttribute('data-member-id', memberId);
             
-            // Tạo HTML cho thẻ
+            const displayName = data.name || memberNames[parseInt(memberId) - 1] || `Thành viên ${memberId}`;
+            const avatar = data.avatar || `https://via.placeholder.com/100x100/4F46E5/FFFFFF?text=${memberId}`;
+            
             card.innerHTML = `
                 <div class="text-center">
-                    <img src="${data.avatar || 'https://via.placeholder.com/100x100/4F46E5/FFFFFF?text=🐵'}" 
-                         alt="${data.name || 'Thành viên'}"
-                         class="avatar w-20 h-20 rounded-full mx-auto mb-3 object-cover border-4 border-blue-100">
-                    <h3 class="member-name font-bold text-lg text-gray-800 mb-1">${data.name || `Thành viên ${memberId}`}</h3>
+                    <img src="${avatar}" alt="${displayName}" class="avatar w-20 h-20 rounded-full mx-auto mb-3 object-cover border-4 border-blue-100">
+                    <h3 class="member-name font-bold text-lg text-gray-800 mb-1">${displayName}</h3>
                     <p class="member-bio text-sm text-gray-600 mb-2">${data.bio || 'Thành viên tuyệt vời của nhóm A5K60'}</p>
                     <div class="member-hobbies flex flex-wrap justify-center gap-1 mt-2">
                         ${(data.hobbies || []).slice(0, 3).map(hobby => 
@@ -115,7 +114,6 @@
                 </div>
             `;
             
-            // Click vào thẻ → vào trang cá nhân
             card.addEventListener('click', () => {
                 localStorage.setItem('viewingMemberId', memberId);
                 window.location.href = `profile.html?id=${memberId}`;
@@ -124,91 +122,62 @@
             return card;
         }
 
-        // Hàm load và lắng nghe thành viên real-time
+        // Hàm load và lắng nghe real-time
         function initializeMembers() {
             const container = document.getElementById('members-container');
             const noResults = document.getElementById('no-results');
             
-            if (!container) {
-                console.error('❌ Không tìm thấy #members-container');
-                return;
-            }
+            if (!container) return;
             
-            // Lắng nghe thay đổi real-time từ Firebase
             db.ref('members').on('value', (snapshot) => {
-                console.log('📡 Firebase data received:', snapshot.val());
-                
                 const members = snapshot.val();
-                
-                // Nếu Firebase chưa có data, load từ localStorage backup
-                if (!members) {
-                    console.log('⚠️ Firebase trống, load từ localStorage...');
-                    for (let i = 1; i <= 46; i++) {
-                        const memberId = i.toString().padStart(2, '0');
-                        const localData = JSON.parse(localStorage.getItem(`member_${memberId}`) || '{}');
-                        const card = createMemberCard(memberId, localData);
-                        container.appendChild(card);
-                    }
-                    return;
-                }
-                
-                // Xóa danh sách cũ
                 container.innerHTML = '';
                 
-                // Sắp xếp theo memberId và render
-                const sortedIds = Object.keys(members).sort((a, b) => parseInt(a) - parseInt(b));
-                sortedIds.forEach(memberId => {
-                    const card = createMemberCard(memberId, members[memberId]);
-                    container.appendChild(card);
-                });
-                
-                // Thêm hiệu ứng vào
-                anime({
-                    targets: '.member-card',
-                    opacity: [0, 1],
-                    translateY: [30, 0],
-                    delay: anime.stagger(50),
-                    duration: 600,
-                    easing: 'easeOutQuad'
-                });
-                
-                console.log(`✅ Đã load ${sortedIds.length} thành viên từ Firebase`);
+                // Nếu chưa có dữ liệu, tạo mặc định từ memberNames
+                if (!members) {
+                    for (let i = 1; i <= 46; i++) {
+                        const memberId = i.toString().padStart(2, '0');
+                        const card = createMemberCard(memberId, {});
+                        container.appendChild(card);
+                    }
+                } else {
+                    Object.keys(members).sort().forEach(memberId => {
+                        const card = createMemberCard(memberId, members[memberId]);
+                        container.appendChild(card);
+                    });
+                    
+                    anime({
+                        targets: '.member-card',
+                        opacity: [0, 1],
+                        translateY: [30, 0],
+                        delay: anime.stagger(50),
+                        duration: 600
+                    });
+                }
             });
             
-            // Lắng nghe khi có thành viên mới
-            db.ref('members').on('child_added', (snapshot) => {
-                console.log(`📥 Thành viên ${snapshot.key} mới được thêm`);
-            });
-            
-            // Lắng nghe khi thành viên thay đổi (real-time sync!)
+            // Lắng nghe thay đổi real-time
             db.ref('members').on('child_changed', (snapshot) => {
                 const memberId = snapshot.key;
                 const data = snapshot.val();
-                console.log(`📝 Thành viên ${memberId} đã cập nhật:`, data);
-                
-                // Cập nhật thẻ trực tiếp nếu tồn tại
-                const existingCard = document.querySelector(`[data-member-id="${memberId}"]`);
-                if (existingCard) {
-                    existingCard.querySelector('.member-name').textContent = data.name || `Thành viên ${memberId}`;
-                    existingCard.querySelector('.member-bio').textContent = data.bio || 'Thành viên tuyệt vời';
-                    existingCard.querySelector('.avatar').src = data.avatar || '/default-avatar.png';
+                const card = document.querySelector(`[data-member-id="${memberId}"]`);
+                if (card) {
+                    card.querySelector('.member-name').textContent = data.name || memberNames[parseInt(memberId) - 1];
+                    card.querySelector('.member-bio').textContent = data.bio || 'Thành viên A5K60';
+                    card.querySelector('.avatar').src = data.avatar || card.querySelector('.avatar').src;
                     
-                    // Thêm hiệu ứng nhấp nháy khi cập nhật
                     anime({
-                        targets: existingCard,
+                        targets: card,
                         scale: [1, 1.05, 1],
-                        duration: 500,
-                        easing: 'easeInOutQuad'
+                        duration: 500
                     });
                 }
             });
         }
 
-        // Hàm tìm kiếm
+        // Tìm kiếm
         function setupSearch() {
             const searchInput = document.getElementById('search-input');
-            const noResults = document.getElementById('no-results');
-            
             searchInput.addEventListener('input', (e) => {
                 const query = e.target.value.toLowerCase();
                 const cards = document.querySelectorAll('.member-card');
@@ -216,10 +185,8 @@
                 
                 cards.forEach(card => {
                     const name = card.querySelector('.member-name').textContent.toLowerCase();
-                    const bio = card.querySelector('.member-bio').textContent.toLowerCase();
-                    const memberId = card.getAttribute('data-member-id');
-                    
-                    if (name.includes(query) || bio.includes(query) || memberId.includes(query)) {
+                    const id = card.getAttribute('data-member-id');
+                    if (name.includes(query) || id.includes(query)) {
                         card.style.display = 'block';
                         hasResults = true;
                     } else {
@@ -227,20 +194,14 @@
                     }
                 });
                 
-                // Hiện/ẩn thông báo không tìm thấy
-                if (hasResults || query === '') {
-                    noResults.classList.add('hidden');
-                } else {
-                    noResults.classList.remove('hidden');
-                }
+                document.getElementById('no-results').classList.toggle('hidden', hasResults || query === '');
             });
         }
 
-        // Khởi chạy khi trang tải
+        // Khởi chạy
         document.addEventListener('DOMContentLoaded', () => {
             initializeMembers();
             setupSearch();
-            console.log('🚀 Trang chủ đã sẵn sàng!');
         });
     </script>
 </body>
